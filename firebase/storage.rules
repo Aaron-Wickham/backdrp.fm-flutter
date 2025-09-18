@@ -1,0 +1,17 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isOwner() {
+      return request.auth != null &&
+        get(/databases/(default)/documents/users/$(request.auth.uid)).data.role == 'owner';
+    }
+    match /sets/{setId}/{fileName} {
+      allow read: if true;
+      allow write, delete: if isOwner();
+    }
+    match /products/{productId}/{fileName} {
+      allow read: if true;
+      allow write, delete: if isOwner();
+    }
+  }
+}
